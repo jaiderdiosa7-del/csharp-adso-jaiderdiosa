@@ -15,111 +15,63 @@ List<Venta> ventas =
     new("Mouse", "Cali", 12, 45_000m)
 ];
 
-Console.WriteLine("=== ANALIZADOR DE VENTAS ===");
-Console.WriteLine("1. Total vendido");
-Console.WriteLine("2. Promedio por venta");
-Console.WriteLine("3. Ventas por ciudad");
-Console.WriteLine("4. Top 3 productos por ingresos");
-Console.WriteLine("5. Producto más vendido");
-Console.WriteLine("0. Salir");
-Console.Write("Seleccione una opción: ");
+decimal totalVendido = ventas.Sum(v => v.Cantidad * v.PrecioUnitario);
 
-int.TryParse(Console.ReadLine(), out int opcion);
+Console.WriteLine("========== ANALIZADOR DE VENTAS ==========");
 
-switch (opcion)
-{
-    case 1:
-        MostrarTotal(ventas);
-        break;
+Console.WriteLine($"\nTotal vendido: ${totalVendido:N0}");
 
-    case 2:
-        MostrarPromedio(ventas);
-        break;
 
-    case 3:
-        MostrarVentasPorCiudad(ventas);
-        break;
+decimal promedioVenta = totalVendido / ventas.Count;
 
-    case 4:
-        MostrarTopProductos(ventas);
-        break;
+Console.WriteLine($"Promedio por venta: ${promedioVenta:N2}");
 
-    case 5:
-        MostrarProductoMasVendido(ventas);
-        break;
+Console.WriteLine("\n=== VENTAS POR CIUDAD ===");
 
-    case 0:
-        Console.WriteLine("Programa finalizado.");
-        break;
-
-    default:
-        Console.WriteLine("Opción no válida.");
-        break;
-}
-
-void MostrarTotal(List<Venta> ventas)
-{
-    decimal total = ventas.Sum(v => v.Cantidad * v.PrecioUnitario);
-
-    Console.WriteLine($"Total vendido: ${total:N0}");
-}
-
-void MostrarPromedio(List<Venta> ventas)
-{
-    decimal promedio = ventas.Average(v => v.Cantidad * v.PrecioUnitario);
-
-    Console.WriteLine($"Promedio por venta registrada: ${promedio:N2}");
-}
-
-void MostrarVentasPorCiudad(List<Venta> ventas)
-{
-    var resultados = ventas
-        .GroupBy(v => v.Ciudad)
-        .Select(g => new
-        {
-            Ciudad = g.Key,
-            Total = g.Sum(v => v.Cantidad * v.PrecioUnitario)
-        })
-        .OrderByDescending(v => v.Total);
-
-    foreach (var venta in resultados)
+var ventasPorCiudad = ventas
+    .GroupBy(v => v.Ciudad)
+    .Select(g => new
     {
-        Console.WriteLine($"{venta.Ciudad}: ${venta.Total:N0}");
-    }
+        Ciudad = g.Key,
+        Total = g.Sum(v => v.Cantidad * v.PrecioUnitario)
+    })
+    .OrderByDescending(g => g.Total);
+
+foreach (var ciudad in ventasPorCiudad)
+{
+    Console.WriteLine($"{ciudad.Ciudad,-12} ${ciudad.Total:N0}");
 }
 
-void MostrarTopProductos(List<Venta> ventas)
-{
-    var resultados = ventas
-        .GroupBy(v => v.Producto)
-        .Select(g => new
-        {
-            Producto = g.Key,
-            Ingresos = g.Sum(v => v.Cantidad * v.PrecioUnitario)
-        })
-        .OrderByDescending(v => v.Ingresos)
-        .Take(3);
+Console.WriteLine("\n=== TOP 3 PRODUCTOS POR INGRESOS ===");
 
-    foreach (var producto in resultados)
+var topProductos = ventas
+    .GroupBy(v => v.Producto)
+    .Select(g => new
     {
-        Console.WriteLine($"{producto.Producto}: ${producto.Ingresos:N0}");
-    }
-}
+        Producto = g.Key,
+        Ingresos = g.Sum(v => v.Cantidad * v.PrecioUnitario)
+    })
+    .OrderByDescending(g => g.Ingresos)
+    .Take(3);
 
-void MostrarProductoMasVendido(List<Venta> ventas)
+foreach (var producto in topProductos)
 {
-    var producto = ventas
-        .GroupBy(v => v.Producto)
-        .Select(g => new
-        {
-            Producto = g.Key,
-            Unidades = g.Sum(v => v.Cantidad)
-        })
-        .OrderByDescending(v => v.Unidades)
-        .First();
-
-    Console.WriteLine(
-        $"Producto más vendido: {producto.Producto} ({producto.Unidades} unidades)");
+    Console.WriteLine($"{producto.Producto,-12} ${producto.Ingresos:N0}");
 }
+
+Console.WriteLine("\n=== PRODUCTO MÁS VENDIDO ===");
+
+var productoMasVendido = ventas
+    .GroupBy(v => v.Producto)
+    .Select(g => new
+    {
+        Producto = g.Key,
+        Unidades = g.Sum(v => v.Cantidad)
+    })
+    .OrderByDescending(g => g.Unidades)
+    .First();
+
+Console.WriteLine(
+    $"{productoMasVendido.Producto}: {productoMasVendido.Unidades} unidades");
 
 record Venta(string Producto, string Ciudad, int Cantidad, decimal PrecioUnitario);
