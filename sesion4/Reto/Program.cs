@@ -130,8 +130,8 @@ void ListarAprendices()
             : "D";
 
         Console.WriteLine(
-            $"{nombre,-15} {listaNotas.Count} notas · " +
-            $"Promedio {promedio:F1} · Juicio {juicio}");
+            $"{nombre,-15} {listaNotas.Count} notas  " +
+            $"Promedio {promedio}  Juicio {juicio}");
     }
 }
 void MostrarRanking()
@@ -153,7 +153,7 @@ void MostrarRanking()
     {
         Console.WriteLine(
             $"{aprendiz.Key,-15} " +
-            $"Promedio {aprendiz.Value.Average():F1}");
+            $"Promedio {aprendiz.Value.Average()}");
     }
 }
 void MostrarMejorYaprobados()
@@ -181,7 +181,7 @@ void MostrarMejorYaprobados()
 
     Console.WriteLine(
         $"Mejor aprendiz: {mejor.Nombre} " +
-        $"con promedio {mejor.Promedio:F1}");
+        $"con promedio {mejor.Promedio}");
 
     Console.WriteLine($"Cantidad de aprobados: {aprobados}");
 }
